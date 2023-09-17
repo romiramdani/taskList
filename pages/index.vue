@@ -9,6 +9,7 @@
               Category
             </button>
             <ul class="dropdown-menu">
+              <li><a class="dropdown-item" @click="selectedCategory = 0">Semua</a></li>
               <li><a class="dropdown-item" href="#" v-for="(category, i) in categories" :key="i" @click="selectedCategory = category.id">{{ category.title }}</a></li>
             </ul>
           </div>
@@ -24,16 +25,26 @@
       <div class="action py-2">
         <a href="#" class="add-button" v-if="!isCreating" @click="isCreating = !isCreating">Add Task</a>
         <div class="add-card" v-else>
-          <div class="card mb-2">
-            <div class="card-body d-flex flex-column p-0">
-              <input type="text" class="form-control border-0 mb-2" placeholder="Title">
-              <textarea class="form-control border-0 small" placeholder="Descriptions" rows="3"></textarea>
+          <form @submit.prevent="handleSubmit">
+            <div class="card mb-2">
+              <div class="card-body d-flex flex-column p-0">
+                  <input v-model="form.title" type="text" class="form-control border-0 mb-2" placeholder="Title">
+                  <div class="d-flex flex-row p-1">
+                    <textarea v-model="form.description" class="form-control border-0 small" placeholder="Descriptions" rows="3" style="width: 70%"></textarea>
+                    <div class="d-flex flex-column">
+                      <label><strong>Category</strong></label>
+                      <label v-for="category in categories" :key="category.id">
+                        <input type="radio" v-model="form.categoryId" :value="category.id">{{ category.title }}
+                      </label>
+                    </div>
+                  </div>
+              </div>
             </div>
-          </div>
-          <div class="button-wrapper d-flex">
-            <button class="btn btn-primary me-2">Save</button>
-            <button class="btn btn-outline-secondary" @click="isCreating = !isCreating">Cancel</button>
-          </div>
+            <div class="button-wrapper d-flex">
+              <button class="btn btn-primary me-2">Save</button>
+              <button class="btn btn-outline-secondary" @click="isCreating = !isCreating">Cancel</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -47,39 +58,19 @@ import CardItem from '~/components/card/CardItem.vue'
     },
     data() {
       return {
+        form : {
+          title : '',
+          description: '',
+          isDone: false,
+          categoryId: 0,
+        },
         selectedCategory: 0,
         categories: [
-          {id: 0, title: 'Semua'},
           {id: 1, title: 'Ringan'},
           {id: 2, title: 'Sedang'},
           {id: 3, title: 'Berat'}
         ],
-        tasks: [
-          {
-            title: 'Task 1',
-            description: 'ini deskripsi',
-            isDone: false,
-            categoryId: 1,
-          },
-          {
-            title: 'Task 2',
-            description: 'ini deskripsi',
-            isDone: false,
-            categoryId: 2,
-          },
-          {
-            title: 'Task 3',
-            description: 'ini deskripsi',
-            isDone: false,
-            categoryId: 1,
-          },
-          {
-            title: 'Task 4',
-            description: 'ini deskripsi',
-            isDone: false,
-            categoryId: 3,
-          },
-        ],
+        tasks: [],
         searchQuery: '',
         isCreating: false,
         isGrid: false,
@@ -96,6 +87,15 @@ import CardItem from '~/components/card/CardItem.vue'
         } else {
           return this.tasks;
         }
+      }
+    },
+    methods : {
+      handleSubmit() {
+        const item = {...this.form}
+        this.tasks.push(item);
+        this.form.title = "";
+        this.form.description ="";
+        this.form.categoryId = null;
       }
     }
   }
